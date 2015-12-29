@@ -1,0 +1,72 @@
+---
+# tasks file for SeiichiDomyo.libxfs
+
+- hosts: vagrant
+  sudo: yes
+
+  vars:
+    xfsprogs_rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
+    xfsprogs_srpm: xfsprogs-3.2.2-2.el7.src.rpm
+    xfsprogs_rpms:
+       - filename: xfsprogs-3.2.2-2.el7.centos.x86_64.rpm
+       - filename: xfsprogs-devel-3.2.2-2.el7.centos.x86_64.rpm
+
+  tasks:
+    - stat: path=/usr/lib64/libxfs.so
+      register: is_libxfs
+
+    - debug: var=is_libxfs
+
+    - name: install the 'Development tools' packages
+      yum: name="@development" state=present
+      when: is_libxfs.stat.exists == false
+
+    - name: install some packages for rebuild 
+      yum: name={{ item }} state=present
+      with_items:
+        - yum-utils
+        - rpmdevtools
+        - readline-devel
+        - libblkid-devel
+        - libuuid-devel 
+      when: is_libxfs.stat.exists == false
+
+    - name: download xfsprogs source
+      sudo: no
+      shell: yumdownloader --source xfsprogs && rpm -ivh "{{ xfsprogs_srpm }}" 
+      register: xfsprogs_download
+      when: is_libxfs.stat.exists == false
+
+#   - debug: var=xfsprogs_download 
+
+    - name: patching xfsprogs source
+      sudo: no
+      shell: rpmbuild -bp SPECS/xfsprogs.spec && cp /vagrant/files/xfsprogs-3.2.2-install-libxfs.patch SOURCES/ && cp /vagrant/files/xfsprogs.spec SPECS/
+      register: xfsprogs_patched
+      args:
+        chdir: ~/rpmbuild/
+      when: xfsprogs_download|success
+
+#   - debug: var=xfsprogs_patched
+
+    - name: build xfsprogs and xfsprogs-devel with libxfs
+      sudo: no
+      command: rpmbuild -ba SPECS/xfsprogs.spec
+      register: xfsprogs_rebuild
+      args:
+        chdir: ~/rpmbuild/
+      when: xfsprogs_patched|success
+
+#    - debug: var=xfsprogs_rebuild
+
+    - name: remove/clenup xfsprogs packages
+      yum: name="{{ item }}" state=absent
+      with_items:
+        - xfsprogs
+        - xfsporgs-devel
+      when: xfsprogs_rebuild|success
+
+    - name: install xfsprogs and xfsprogs-devel with libxfs
+      yum: name="{{ xfsprogs_rpms_dir }}/{{ item.filename }}" state=present
+      with_items: xfsprogs_rpms
+      when: xfsprogs_rebuild|success

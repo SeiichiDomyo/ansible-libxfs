@@ -1,0 +1,14 @@
+diff -uprN xfsprogs-3.2.2.orig/libxfs/Makefile xfsprogs-3.2.2/libxfs/Makefile
+--- xfsprogs-3.2.2.orig/libxfs/Makefile	2015-12-29 07:34:07.796573502 +0000
++++ xfsprogs-3.2.2/libxfs/Makefile	2015-12-29 07:35:19.153234000 +0000
+@@ -84,8 +84,10 @@ crc32selftest: gen_crc32table.c crc32tab
+ include $(BUILDRULES)
+ 
+ install: default
++	$(INSTALL_LTLIB)
+ 
+ install-dev: default
++	$(INSTALL_LTLIB_DEV)
+ 
+ install-qa: default
+ 
