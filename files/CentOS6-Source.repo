@@ -1,0 +1,24 @@
+[base-source]
+name=CentOS-$releasever - Base Source
+#baseurl=http://vault.centos.org/$releasever/os/Source/
+baseurl=http://vault.centos.org/6.7/os/Source/
+gpgcheck=1
+enabled=0
+gpgkey=http://vault.centos.org/RPM-GPG-KEY-CentOS-6
+
+[updates-source]
+name=CentOS-$releasever - Updates Source
+#baseurl=http://vault.centos.org/$releasever/updates/Source/
+baseurl=http://vault.centos.org/6.7/updates/Source/
+gpgcheck=1
+enabled=0
+gpgkey=http://vault.centos.org/RPM-GPG-KEY-CentOS-6
+
+[extras-source]
+name=CentOS-$releasever - Extras Source
+#baseurl=http://vault.centos.org/$releasever/extras/Source/
+baseurl=http://vault.centos.org/6.7/extras/Source/
+gpgcheck=1
+enabled=0
+gpgkey=http://vault.centos.org/RPM-GPG-KEY-CentOS-6
+
