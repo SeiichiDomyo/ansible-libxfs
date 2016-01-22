@@ -1,7 +1,7 @@
 ---
 # tasks file for SeiichiDomyo.libxfs
 
-- hosts: vagrant
+- hosts: centos7
   sudo: yes
 
   vars:
@@ -13,60 +13,52 @@
 
   tasks:
     - stat: path=/usr/lib64/libxfs.so
-      register: is_libxfs
-
-    - debug: var=is_libxfs
+      register: _libxfs
 
     - name: install the 'Development tools' packages
       yum: name="@development" state=present
-      when: is_libxfs.stat.exists == false
+      when: _libxfs.stat.exists == false
 
-    - name: install some packages for rebuild 
+    - name: install some packages for rebuild
       yum: name={{ item }} state=present
       with_items:
         - yum-utils
         - rpmdevtools
         - readline-devel
         - libblkid-devel
-        - libuuid-devel 
-      when: is_libxfs.stat.exists == false
+        - libuuid-devel
+      when: _libxfs.stat.exists == false
 
     - name: download xfsprogs source
       sudo: no
-      shell: yumdownloader --source xfsprogs && rpm -ivh "{{ xfsprogs_srpm }}" 
-      register: xfsprogs_download
-      when: is_libxfs.stat.exists == false
-
-#   - debug: var=xfsprogs_download 
+      shell: yumdownloader --source xfsprogs &&
+             rpm -ivh "{{ xfsprogs_srpm }}"
+      when: _libxfs.stat.exists == false
 
     - name: patching xfsprogs source
       sudo: no
-      shell: rpmbuild -bp SPECS/xfsprogs.spec && cp /vagrant/files/xfsprogs-3.2.2-install-libxfs.patch SOURCES/ && cp /vagrant/files/xfsprogs.spec SPECS/
-      register: xfsprogs_patched
+      shell: rpmbuild -bp SPECS/xfsprogs.spec &&
+             cp /vagrant/files/xfsprogs-3.2.2-install-libxfs.patch SOURCES/ &&
+             cp /vagrant/files/xfsprogs.spec SPECS/
       args:
         chdir: ~/rpmbuild/
-      when: xfsprogs_download|success
-
-#   - debug: var=xfsprogs_patched
+      when: _libxfs.stat.exists == false
 
     - name: build xfsprogs and xfsprogs-devel with libxfs
       sudo: no
-      command: rpmbuild -ba SPECS/xfsprogs.spec
-      register: xfsprogs_rebuild
+      shell: rpmbuild -ba SPECS/xfsprogs.spec
       args:
         chdir: ~/rpmbuild/
-      when: xfsprogs_patched|success
-
-#    - debug: var=xfsprogs_rebuild
+      when: _libxfs.stat.exists == false
 
     - name: remove/clenup xfsprogs packages
       yum: name="{{ item }}" state=absent
       with_items:
         - xfsprogs
         - xfsporgs-devel
-      when: xfsprogs_rebuild|success
+      when: _libxfs.stat.exists == false
 
     - name: install xfsprogs and xfsprogs-devel with libxfs
       yum: name="{{ xfsprogs_rpms_dir }}/{{ item.filename }}" state=present
       with_items: xfsprogs_rpms
-      when: xfsprogs_rebuild|success
+      when: _libxfs.stat.exists == false
