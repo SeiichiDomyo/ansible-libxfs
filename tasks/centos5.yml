@@ -1,19 +1,18 @@
 ---
 # tasks file for SeiichiDomyo.libxfs
 
-- hosts: centos7
+- hosts: centos5
   sudo: yes
 
   vars:
-    xfsprogs_rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
-    xfsprogs_srpm: xfsprogs-3.2.2-2.el7.src.rpm
+    xfsprogs_rpms_dir: /usr/src/redhat/RPMS/x86_64
+    xfsprogs_srpm: xfsprogs-2.9.4-1.el5.centos.src.rpm
     xfsprogs_rpms:
-       - filename: xfsprogs-3.2.2-2.el7.centos.x86_64.rpm
-       - filename: xfsprogs-devel-3.2.2-2.el7.centos.x86_64.rpm
-       - filename: xfsprogs-qa-devel-3.2.2-2.el7.centos.x86_64.rpm
+       - filename: xfsprogs-2.9.4-1.el5.x86_64.rpm
+       - filename: xfsprogs-devel-2.9.4-1.el5.x86_64.rpm
 
   tasks:
-    - stat: path=/usr/lib64/libxfs.so
+    - stat: path=/usr/lib64/libxfs.a
       register: _libxfs
 
     - name: install the 'Development tools' packages
@@ -22,32 +21,28 @@
     - name: install some packages for rebuild
       yum: name={{ item }} state=present
       with_items:
-        - yum-utils
+        - libtool
+        - autoconf
+        - gettext
         - rpmdevtools
         - readline-devel
-        - libblkid-devel
-        - libuuid-devel
+        - e2fsprogs-devel
 
     - name: download xfsprogs source
-      sudo: no
       shell: yumdownloader --source xfsprogs &&
              rpm -ivh "{{ xfsprogs_srpm }}"
       when: _libxfs.stat.exists == false
 
     - name: patching xfsprogs source
-      sudo: no
-      shell: rpmbuild -bp SPECS/xfsprogs.spec &&
-             cp /vagrant/files/xfsprogs-3.2.2-install-libxfs.patch SOURCES/ &&
-             cp /vagrant/files/xfsprogs-3.2.2-xfsprogs.spec SPECS/xfsprogs.spec
+      shell: rpmbuild -bp SPECS/xfsprogs.spec
       args:
-        chdir: ~/rpmbuild/
+        chdir: /usr/src/redhat/
       when: _libxfs.stat.exists == false
 
     - name: build xfsprogs and xfsprogs-devel with libxfs
-      sudo: no
-      shell: rpmbuild -ba SPECS/xfsprogs.spec
+      shell: rpmbuild -ba --define="dist .el5" --define="el5 1" SPECS/xfsprogs.spec
       args:
-        chdir: ~/rpmbuild/
+        chdir: /usr/src/redhat/ 
       when: _libxfs.stat.exists == false
 
     - name: remove/clenup xfsprogs packages
@@ -58,6 +53,7 @@
       when: _libxfs.stat.exists == false
 
     - name: install xfsprogs and xfsprogs-devel with libxfs
-      yum: name="{{ xfsprogs_rpms_dir }}/{{ item.filename }}" state=present
-      with_items: xfsprogs_rpms
+      shell: rpm -ivh xfsprogs-2.9.4-1.el5.x86_64.rpm xfsprogs-devel-2.9.4-1.el5.x86_64.rpm
+      args:
+        chdir: /usr/src/redhat/RPMS/x86_64/ 
       when: _libxfs.stat.exists == false

@@ -23,15 +23,15 @@ Vagrant.configure(2) do |config|
     end 
   end
 
-#  config.vm.define "centos5" do |centos5|
-#    centos5.vm.box = "bento/centos-5.11"
-#    centos5.vm.network "private_network", ip: "192.168.33.53"
-#    centos5.vm.provision :shell, :path => "bootstrap.sh"  
-#    centos5.vm.provision "ansible" do |ansible|
-#      ansible.playbook = "tasks/centos5.yml"
-#      ansible.inventory_path = "hosts"
-#      ansible.limit = 'centos5'
-#    end 
-#  end
+  config.vm.define "centos5" do |centos5|
+    centos5.vm.box = "bento/centos-5.11"
+    centos5.vm.network "private_network", ip: "192.168.33.53"
+    centos5.vm.provision :shell, :path => "bootstrap.sh"  
+    centos5.vm.provision "ansible" do |ansible|
+      ansible.playbook = "tasks/centos5.yml"
+      ansible.inventory_path = "hosts"
+      ansible.limit = 'centos5'
+    end 
+  end
 
 end

@@ -18,7 +18,6 @@
 
     - name: install the 'Development tools' packages
       yum: name="@development" state=present
-      when: _libxfs.stat.exists == false
 
     - name: install some packages for rebuild
       yum: name={{ item }} state=present
@@ -28,7 +27,6 @@
         - readline-devel
         - libblkid-devel
         - libuuid-devel
-      when: _libxfs.stat.exists == false
 
     - name: setup yum repo 
       shell: cp /vagrant/files/CentOS6-Source.repo /etc/yum.repos.d/CentOS-Source.repo
@@ -42,7 +40,9 @@
 
     - name: patching xfsprogs source
       sudo: no
-      shell: rpmbuild -bp SPECS/xfsprogs.spec
+      shell: rpmbuild -bp SPECS/xfsprogs.spec &&
+             cp /vagrant/files/xfsprogs-3.1.1-install-libxfs.patch SOURCES/ &&
+             cp /vagrant/files/xfsprogs-3.1.1-xfsprogs.spec SPECS/xfsprogs.spec
       args:
         chdir: ~/rpmbuild/
       when: _libxfs.stat.exists == false
