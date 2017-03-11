@@ -12,21 +12,12 @@
        - filename: xfsprogs-devel-3.2.2-2.el7.centos.x86_64.rpm
        - filename: xfsprogs-qa-devel-3.2.2-2.el7.centos.x86_64.rpm
 
+  roles:
+    - common
+
   tasks:
     - stat: path=/usr/lib64/libxfs.so
       register: _libxfs
-
-    - name: install the 'Development tools' packages
-      yum: name="@development" state=present
-
-    - name: install some packages for rebuild
-      yum: name={{ item }} state=present
-      with_items:
-        - yum-utils
-        - rpmdevtools
-        - readline-devel
-        - libblkid-devel
-        - libuuid-devel
 
     - name: download xfsprogs source
       sudo: no

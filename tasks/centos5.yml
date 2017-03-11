@@ -11,22 +11,12 @@
        - filename: xfsprogs-2.9.4-1.el5.x86_64.rpm
        - filename: xfsprogs-devel-2.9.4-1.el5.x86_64.rpm
 
+  roles:
+    - common
+  
   tasks:
     - stat: path=/usr/lib64/libxfs.a
       register: _libxfs
-
-    - name: install the 'Development tools' packages
-      yum: name="@development" state=present
-
-    - name: install some packages for rebuild
-      yum: name={{ item }} state=present
-      with_items:
-        - libtool
-        - autoconf
-        - gettext
-        - rpmdevtools
-        - readline-devel
-        - e2fsprogs-devel
 
     - name: download xfsprogs source
       shell: yumdownloader --source xfsprogs &&

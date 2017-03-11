@@ -12,21 +12,12 @@
        - filename: xfsprogs-devel-3.1.1-16.el6.x86_64.rpm
        - filename: xfsprogs-qa-devel-3.1.1-16.el6.x86_64.rpm
 
+  roles:
+    - common
+
   tasks:
     - stat: path=/usr/lib64/libxfs.so
       register: _libxfs
-
-    - name: install the 'Development tools' packages
-      yum: name="@development" state=present
-
-    - name: install some packages for rebuild
-      yum: name={{ item }} state=present
-      with_items:
-        - yum-utils
-        - rpmdevtools
-        - readline-devel
-        - libblkid-devel
-        - libuuid-devel
 
     - name: setup yum repo 
       shell: cp /vagrant/files/CentOS6-Source.repo /etc/yum.repos.d/CentOS-Source.repo
