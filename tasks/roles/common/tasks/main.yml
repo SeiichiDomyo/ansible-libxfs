@@ -21,4 +21,5 @@
     - gettext
     - rpmdevtools
     - readline-devel
-  when: ansible_distribution == 'CentOS' and ansible_distribution_version == '5'
+    - e2fsprogs-devel
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version == '5.11'
