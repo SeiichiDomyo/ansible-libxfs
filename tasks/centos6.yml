@@ -8,9 +8,9 @@
     xfsprogs_rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
     xfsprogs_srpm: xfsprogs-3.1.1-16.el6.src.rpm
     xfsprogs_rpms:
-       - filename: xfsprogs-3.1.1-16.el6.x86_64.rpm
-       - filename: xfsprogs-devel-3.1.1-16.el6.x86_64.rpm
-       - filename: xfsprogs-qa-devel-3.1.1-16.el6.x86_64.rpm
+       - filename: xfsprogs-3.1.1-16.1.el6.x86_64.rpm
+       - filename: xfsprogs-devel-3.1.1-16.1.el6.x86_64.rpm
+       - filename: xfsprogs-qa-devel-3.1.1-16.1.el6.x86_64.rpm
 
   roles:
     - common
@@ -20,7 +20,7 @@
       register: _libxfs
 
     - name: setup yum repo 
-      shell: cp /vagrant/files/CentOS6-Source.repo /etc/yum.repos.d/CentOS-Source.repo
+      shell: cp /vagrant/files/centos6/CentOS6-Source.repo /etc/yum.repos.d/CentOS-Source.repo
       when: _libxfs.stat.exists == false
 
     - name: download xfsprogs source
@@ -32,8 +32,8 @@
     - name: patching xfsprogs source
       sudo: no
       shell: rpmbuild -bp SPECS/xfsprogs.spec &&
-             cp /vagrant/files/xfsprogs-3.1.1-install-libxfs.patch SOURCES/ &&
-             cp /vagrant/files/xfsprogs-3.1.1-xfsprogs.spec SPECS/xfsprogs.spec
+             cp /vagrant/files/centos6/xfsprogs-3.1.1-install-libxfs.patch SOURCES/ &&
+             cp /vagrant/files/centos6/xfsprogs-3.1.1-16.1.el6.xfsprogs.spec SPECS/xfsprogs.spec
       args:
         chdir: ~/rpmbuild/
       when: _libxfs.stat.exists == false
@@ -54,5 +54,5 @@
 
     - name: install xfsprogs and xfsprogs-devel with libxfs
       yum: name="{{ xfsprogs_rpms_dir }}/{{ item.filename }}" state=present
-      with_items: xfsprogs_rpms
+      with_items: "{{ xfsprogs_rpms }}"
       when: _libxfs.stat.exists == false
