@@ -4,7 +4,7 @@
 Vagrant.configure(2) do |config|
 
   config.vm.define "centos7" do |centos7|
-    centos7.vm.box = "bento/centos-7.1"
+    centos7.vm.box = "bento/centos-7.2"
     centos7.vm.network "private_network", ip: "192.168.33.51"
     centos7.vm.provision :shell, :path => "bootstrap-centos7.sh"  
     centos7.vm.provision "ansible" do |ansible|
@@ -15,7 +15,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.define "centos6" do |centos6|
-    centos6.vm.box = "bento/centos-6.7"
+    centos6.vm.box = "bento/centos-6.8"
     centos6.vm.network "private_network", ip: "192.168.33.52"
     centos6.vm.provision :shell, :path => "bootstrap-centos6.sh"  
     centos6.vm.provision "ansible" do |ansible|
