@@ -6,27 +6,17 @@
 
   vars:
     xfsprogs_rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
-    xfsprogs_srpm: xfsprogs-3.2.2-2.el7.src.rpm
+    xfsprogs_srpm: xfsprogs-4.5.0-9.el7_3.src.rpm
     xfsprogs_rpms:
-       - filename: xfsprogs-3.2.2-2.el7.centos.x86_64.rpm
-       - filename: xfsprogs-devel-3.2.2-2.el7.centos.x86_64.rpm
-       - filename: xfsprogs-qa-devel-3.2.2-2.el7.centos.x86_64.rpm
+       - filename: xfsprogs-4.5.0-9.1.el7.centos.x86_64.rpm
+       - filename: xfsprogs-devel-4.5.0-9.1.el7.centos.x86_64.rpm
+
+  roles:
+    - common
 
   tasks:
     - stat: path=/usr/lib64/libxfs.so
       register: _libxfs
-
-    - name: install the 'Development tools' packages
-      yum: name="@development" state=present
-
-    - name: install some packages for rebuild
-      yum: name={{ item }} state=present
-      with_items:
-        - yum-utils
-        - rpmdevtools
-        - readline-devel
-        - libblkid-devel
-        - libuuid-devel
 
     - name: download xfsprogs source
       sudo: no
@@ -37,8 +27,7 @@
     - name: patching xfsprogs source
       sudo: no
       shell: rpmbuild -bp SPECS/xfsprogs.spec &&
-             cp /vagrant/files/xfsprogs-3.2.2-install-libxfs.patch SOURCES/ &&
-             cp /vagrant/files/xfsprogs-3.2.2-xfsprogs.spec SPECS/xfsprogs.spec
+             cp /vagrant/files/centos7/xfsprogs-4.5.0-9.1.el7_3-xfsprogs.spec SPECS/xfsprogs.spec
       args:
         chdir: ~/rpmbuild/
       when: _libxfs.stat.exists == false
@@ -59,5 +48,5 @@
 
     - name: install xfsprogs and xfsprogs-devel with libxfs
       yum: name="{{ xfsprogs_rpms_dir }}/{{ item.filename }}" state=present
-      with_items: xfsprogs_rpms
+      with_items: "{{ xfsprogs_rpms }}"
       when: _libxfs.stat.exists == false
