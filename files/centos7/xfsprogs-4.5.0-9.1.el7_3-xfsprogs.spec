@@ -1,7 +1,7 @@
 Summary:	Utilities for managing the XFS filesystem
 Name:		xfsprogs
-Version:	3.1.1
-Release:	16%{?dist}
+Version:	4.5.0
+Release:	9.1%{?dist}
 # Licensing based on generic "GNU GENERAL PUBLIC LICENSE"
 # in source, with no mention of version.
 # doc/COPYING file specifies what is GPL and what is LGPL
@@ -12,48 +12,27 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/cmd_tars/%{name}-%{version}.tar.gz
 Source1:	xfsprogs-wrapper.h
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:	libtool, gettext, libuuid-devel
+BuildRequires:	libtool, gettext, libattr-devel, libuuid-devel
 BuildRequires:	readline-devel, libblkid-devel >= 2.17-0.1.git5e51568
 Provides:	xfs-cmds
 Obsoletes:	xfs-cmds <= %{version}
+Provides:	xfsprogs-qa-devel
+Obsoletes:	xfsprogs-qa-devel <= %{version}
 Conflicts:	xfsdump < 3.0.1
 
-Patch0:		xfsprogs-3.1.0-glibc-fixes.patch
-Patch1:		xfsprogs-3.1.1-fd-test-fix.patch
-Patch2:		xfsprogs-3.1.1-empty-blkid-fix.patch
-Patch3:		xfsprogs-3.1.1-btree-locking.patch
-Patch4:		xfsprogs-3.1.2-fsr-attr-v2.patch
-Patch5:		xfsprogs-3.1.2-admin-lazy_count-fix.patch
-Patch6:		xfsprogs-3.1.2-xfs_quota-ESRCH.patch
-Patch7:		xfsprogs-3.1.5-xfs_repair-check-if-agno-is-inside-the-filesystem.patch
-Patch8:		xfsprogs-3.1.5-xfs_metadump-fixes.patch
-Patch9:		xfsprogs-3.1.6-agblock-count-fix.patch
-Patch10:	xfsprogs-3.1.6-double-pquota-values.patch
-Patch11:	xfsprogs-3.1.6-ignore-fs_table_errors.patch
-Patch12:	xfsprogs-3.1.1-mkfs-misaligned.patch
-Patch13:	xfsprogs-3.1.1-mkfs-physsect.patch
-Patch14:	xfsprogs-3.1.1-agsize-warn.patch
-Patch15:	xfsprogs-3.1.1-projid32bit.patch
-Patch16:	xfsprogs-3.1.1-projid32flag.patch
-Patch17:	xfsprogs-3.1.1-validatestring.patch
-Patch18:	xfsprogs-3.1.11-multidisk-mode.patch
-Patch19:	xfsprogs-3.1.11-logprint-multilog.patch
-Patch20:	xfsprogs-3.1.11-io-remove-setfl.patch
-Patch21:	xfsprogs-3.1.11-io-manpage.patch
-Patch22:	xfsprogs-3.1.9-repair-frag-dir2-leaf.patch
-Patch23:	xfsprogs-3.1.9-repair-frag-dir2-blkmap.patch
-Patch24:	xfsprogs-3.1.8-repair-thread-local-data.patch
-Patch25:	xfsprogs-3.1.11-mkfs-manpage.patch
-Patch26:	xfsprogs-3.1.18-repair-unlinked-walk.patch
-Patch27:	xfsprogs-3.1.1-logprint-continuation.patch
-Patch28:	xfsprogs-3.1.1-logprint-fix-continuation.patch
-Patch29:	xfsprogs-3.1.1-logprint-fix-wrapped-log.patch
-Patch30:	xfsprogs-3.2.0-platform_test_xfs_fd-regular-files.patch
-Patch31:	xfsprogs-3.2.0-repair-early-progress-segfault.patch
-Patch32:	xfsprogs-3.2.0-xfs_fsr-selinux.patch
-Patch33:	xfsprogs-3.2.1-xfs_copy-exit-not-killall.patch
-Patch34:	xfsprogs-3.2.1-xfs_copy_fix_corruption.patch
-Patch35:	xfsprogs-3.1.1-install-libxfs.patch
+Patch0:		xfsprogs-4.5.0-revert-AGFL-pack.patch
+Patch1:		xfsprogs-4.5.0-change-mkfs-options.patch
+Patch2:		xfsprogs-4.5.0-fix-headers.patch
+Patch3:		xfsprogs-4.5.0-revert-xfs_db-sparse-inodes.patch
+Patch4:		xfsprogs-4.5.0-xfs_repair-rtino-version.patch
+Patch5:		xfsprogs-4.5.0-xfs_repair-quota-inodes.patch
+Patch6:		xfsprogs-4.5.0-xfs_repair-exit-value-memory.patch
+Patch7:		xfsprogs-4.7.0-defang-frag.patch
+Patch8:		xfsprogs-4.7.0-fix-agf-limit-errors.patch
+Patch9:		xfsprogs-4.7.0-quota-fixes.patch
+Patch10:	xfsprogs-4.8.0-replace-ustat.patch
+Patch11:	xfsprogs-revert-off64_t.patch
+Patch12:	xfsprogs-4.9.0-junk-attr-leaf-count-zero.patch
 
 %description
 A set of commands to use the XFS filesystem, including mkfs.xfs.
@@ -70,34 +49,20 @@ for complete details.  This implementation is on-disk compatible
 with the IRIX version of XFS.
 
 %package devel
-Summary: XFS filesystem-specific static libraries and headers
+Summary: XFS filesystem-specific headers
 Group: Development/Libraries
-Requires: xfsprogs = %{version}-%{release}
+Requires: xfsprogs = %{version}-%{release}, libuuid-devel
 
 %description devel
-xfsprogs-devel contains the libraries and header files needed to
-develop XFS filesystem-specific programs.
+xfsprogs-devel contains the header files needed to develop XFS
+filesystem-specific programs.
 
 You should install xfsprogs-devel if you want to develop XFS
 filesystem-specific programs,  If you install xfsprogs-devel, you'll
 also want to install xfsprogs.
 
-%package qa-devel
-Summary: XFS QA filesystem-specific static libraries and headers
-Group: Development/Libraries
-Requires: xfsprogs = %{version}-%{release}
-Requires: xfsprogs-devel = %{version}-%{release}
-
-%description qa-devel
-xfsprogs-qa-devel contains headers and libraries needed to build
-the xfstests QA suite.
-
-You should install xfsprogs-qa-devel only if you are interested
-in building or running the xfstests QA suite.
-
 %prep
 %setup -q
-
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -111,32 +76,9 @@ in building or running the xfstests QA suite.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p1
-%patch24 -p1
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
-%patch28 -p1
-%patch29 -p1
-%patch30 -p1
-%patch31 -p1
-%patch32 -p1
-%patch33 -p1
-%patch34 -p1
-%patch35 -p1
 
 %build
-export tagname=CC DEBUG=-DNDEBUG
+export tagname=CC
 %configure \
         --enable-readline=yes	\
 	--enable-blkid=yes
@@ -149,26 +91,19 @@ make V=1 %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make DIST_ROOT=$RPM_BUILD_ROOT install install-dev install-qa
+make V=1 DIST_ROOT=$RPM_BUILD_ROOT install install-dev \
+	PKG_ROOT_SBIN_DIR=%{_sbindir} PKG_ROOT_LIB_DIR=%{_libdir}
 
 # nuke .la files, etc
-rm -f $RPM_BUILD_ROOT/{%{_lib}/*.{la,a,so},%{_libdir}/*.la}
-# fix up symlink to be correct
-rm -f $RPM_BUILD_ROOT/%{_libdir}/libhandle.so
-ln -s ../../%{_lib}/libhandle.so.1 $RPM_BUILD_ROOT/%{_libdir}/libhandle.so
-chmod 0755 $RPM_BUILD_ROOT/%{_lib}/libhandle.so.*.*.*
+rm -f $RPM_BUILD_ROOT/{%{_lib}/*.{la,a,so},%{_libdir}/*.{la,a}}
+chmod 0755 $RPM_BUILD_ROOT/%{_libdir}/libhandle.so.*.*.*
 
 # remove non-versioned docs location
 rm -rf $RPM_BUILD_ROOT/%{_datadir}/doc/xfsprogs/
 
-# ugly hack to allow parallel install of 32-bit and 64-bit -devel packages:
-%define multilib_arches %{ix86} x86_64 ppc ppc64 s390 s390x %{sparc}
-
-%ifarch %{multilib_arches}
-mv -f $RPM_BUILD_ROOT%{_includedir}/xfs/platform_defs.h \
-      $RPM_BUILD_ROOT%{_includedir}/xfs/platform_defs-%{_arch}.h
-install -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_includedir}/xfs/platform_defs.h
-%endif
+# xfs_check is deprecated; nuke it from orbit for RHEL7
+rm -f $RPM_BUILD_ROOT/%{_sbindir}/xfs_check
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man8/xfs_check*
 
 %find_lang %{name}
 
@@ -182,10 +117,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -f %{name}.lang
 %defattr(-,root,root)
 %doc doc/CHANGES doc/COPYING doc/CREDITS README
-/sbin/fsck.xfs
-/sbin/mkfs.xfs
-/sbin/xfs_repair
-/%{_lib}/*.so.*
+%{_libdir}/*.so.*
 %{_mandir}/man8/*
 %{_mandir}/man5/*
 %{_sbindir}/*
@@ -197,139 +129,218 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/xfs/handle.h
 %{_includedir}/xfs/jdm.h
 %{_includedir}/xfs/linux.h
-%ifarch %{multilib_arches}
-%{_includedir}/xfs/platform_defs-%{_arch}.h
-%endif
-%{_includedir}/xfs/platform_defs.h
 %{_includedir}/xfs/xfs.h
+%{_includedir}/xfs/xfs_arch.h
 %{_includedir}/xfs/xfs_fs.h
+%{_includedir}/xfs/xfs_types.h
+%{_includedir}/xfs/xfs_format.h
+%{_includedir}/xfs/xfs_da_format.h
+%{_includedir}/xfs/xfs_log_format.h
 %{_includedir}/xfs/xqm.h
-%{_libdir}/*.a
+
 %{_libdir}/*.so
 
-%files qa-devel
-%defattr(-,root,root)
-%{_includedir}/xfs/bitops.h
-%{_includedir}/xfs/cache.h
-%{_includedir}/xfs/kmem.h
-%{_includedir}/xfs/libxfs.h
-%{_includedir}/xfs/libxlog.h
-%{_includedir}/xfs/list.h
-%{_includedir}/xfs/parent.h
-%{_includedir}/xfs/swab.h
-%{_includedir}/xfs/xfs_ag.h
-%{_includedir}/xfs/xfs_alloc.h
-%{_includedir}/xfs/xfs_alloc_btree.h
-%{_includedir}/xfs/xfs_arch.h
-%{_includedir}/xfs/xfs_attr_leaf.h
-%{_includedir}/xfs/xfs_attr_sf.h
-%{_includedir}/xfs/xfs_bit.h
-%{_includedir}/xfs/xfs_bmap.h
-%{_includedir}/xfs/xfs_bmap_btree.h
-%{_includedir}/xfs/xfs_btree.h
-%{_includedir}/xfs/xfs_btree_trace.h
-%{_includedir}/xfs/xfs_buf_item.h
-%{_includedir}/xfs/xfs_da_btree.h
-%{_includedir}/xfs/xfs_dfrag.h
-%{_includedir}/xfs/xfs_dinode.h
-%{_includedir}/xfs/xfs_dir2.h
-%{_includedir}/xfs/xfs_dir2_block.h
-%{_includedir}/xfs/xfs_dir2_data.h
-%{_includedir}/xfs/xfs_dir2_leaf.h
-%{_includedir}/xfs/xfs_dir2_node.h
-%{_includedir}/xfs/xfs_dir2_sf.h
-%{_includedir}/xfs/xfs_dir_leaf.h
-%{_includedir}/xfs/xfs_dir_sf.h
-%{_includedir}/xfs/xfs_extfree_item.h
-%{_includedir}/xfs/xfs_ialloc.h
-%{_includedir}/xfs/xfs_ialloc_btree.h
-%{_includedir}/xfs/xfs_imap.h
-%{_includedir}/xfs/xfs_inode.h
-%{_includedir}/xfs/xfs_inode_item.h
-%{_includedir}/xfs/xfs_inum.h
-%{_includedir}/xfs/xfs_log.h
-%{_includedir}/xfs/xfs_log_priv.h
-%{_includedir}/xfs/xfs_log_recover.h
-%{_includedir}/xfs/xfs_metadump.h
-%{_includedir}/xfs/xfs_mount.h
-%{_includedir}/xfs/xfs_quota.h
-%{_includedir}/xfs/xfs_rtalloc.h
-%{_includedir}/xfs/xfs_sb.h
-%{_includedir}/xfs/xfs_trans.h
-%{_includedir}/xfs/xfs_trans_space.h
-%{_includedir}/xfs/xfs_types.h
-
 %changelog
-* Mon Jun 16 2014 Eric Sandeen <sandeen@redhat.com> 3.1.1-16
-- xfs_copy: do not exit with error code if we succeed (#1100107)
-- xfs_copy: fix corruption when source fs sector size is > 512 bytes (#1104956)
+* Fri Dec 16 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-9
+- xfs_repair: junk leaf attribute if count == 0 (#1402944)
 
-* Mon May 05 2014 Eric Sandeen <sandeen@redhat.com> 3.1.1-15
-- libxfs: restrict platform_test_xfs_fd to regular files (#1018751)
-- xfs_repair: avoid segfault if reporting progress early in repair (#1020438)
-- xfs_fsr: fix SWAPEXT failures under selinux (#1024702)
+* Thu Sep 08 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-8
+- revert loff_t to off64_t change to preserve xfs.h behavior (#1366291)
+- accomodate lack of ustat() on some arches (#1373605)
 
-* Fri Aug 30 2013 Eric Sandeen <sandeen@redhat.com> 3.1.1-14
-- xfs_logprint: More fixes for continuations & log wraps  (#1002908)
+* Wed Sep 07 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-7
+- rebuild with libattr-devel dependency to fix xfs_fsr (#1372939)
 
-* Wed Jul 24 2013 Eric Sandeen <sandeen@redhat.com> 3.1.1-13
-- xfs_repair: do not walk the unlinked inode list (#950691)
+* Tue Aug 09 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-6
+- xfs_quota: misc fixes (#1365256)
+- xfs_db: clarify frag command (#1365256)
 
-* Wed Jul 24 2013 Eric Sandeen <sandeen@redhat.com> 3.1.1-12
-- mkfs.xfs: Document "noalign" option in mkfs.xfs manpage (#987538)
+* Mon Jul 18 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-5
+- xfs_repair: Don't let low memory indicate corruption on exit (#1355929)
 
-* Fri May 17 2013 Eric Sandeen <sandeen@redhat.com> 3.1.1-11
-- mkfs.xfs: Use multidisk mode when geometry is on cmdline (#961501)
-- xfs_io: Update  man page to include chproj, lsproj (#962394)
-- xfs_io: Remove broken setfl command (#962394)
-- xfs_logprint: Handle multiply-logged fields (#962397)
-- xfs_repair: Handle fragmented multiblock dir2 directories (#964216)
-- xfs_repair: avoid segfault with ag_stride (#93904)
+* Tue Jun 28 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-4
+- xfs_db: Fix multi-inode-record chunks in 4.5.0 (#1346927)
+- xfs_repair: Fix special inode handling in 4.5.0 (#1347698)
+- xfs_repair: Fix quota inode handling in 4.5.0 (#1347719)
 
-* Wed Nov 28 2012 Eric Sandeen <sandeen@redhat.com> 3.1.1-10
-- Validate string -> number conversion (#878859)
+* Mon Jun 13 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-3
+- mkfs.xfs: disable finobt by default, disable sparse inodes entirely (#1345961)
+- Fix header files for compatibility (#1340553)
 
-* Mon Oct 15 2012 Eric Sandeen <sandeen@redhat.com> 3.1.1-9
-- Add 32-bit project ID support (#827186)
+* Mon Jun 06 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-2
+- Revert AGFL header packing (#1336920)
 
-* Tue Sep 25 2012 Eric Sandeen <sandeen@redhat.com> 3.1.1-8
-- mkfs.xfs: better handle misaligned 4k devices (#836433)
-- mkfs.xfs: default to physical sectorsize (#836433)
-- mkfs.xfs: clarify errors when specified AG size is too large (#730433)
+* Tue Mar 15 2016 Eric Sandeen <sandeen@redhat.com> 4.5.0-1
+- Rebase to upstream v4.5.0 (#1309498)
+- mkfs: default to CRC enabled filesystems
+- mkfs: default to ftype enabled filesystems
+- mkfs.xfs.8: Clarify mkfs vs. mount block size limits. (#1263535)
+- xfs_copy: fix copy of hard 4k devices (#1231841)
+- xfs_quota: use Q_XGETNEXTQUOTA for faster repquota (#1164652)
+- xfs_fsr: more fixes for extent swaps with selinux (#1083833)
+- xfs_copy: Allow UUID changes on V5 filesystems (#1072283)
 
-* Wed Feb 15 2012 Eric Sandeen <sandeen@redhat.com> 3.1.1-7
-- Fix xfs_metadump hang (#730886)
-- mkfs.xfs: don't increase agblocks past maximum (#738279)
-- Fix double reporting of quota values (#749435)
-- xfs_quota: handle malformed entries in mtab (749434)
+* Fri Aug 07 2015 Eric Sandeen <sandeen@redhat.com> 3.2.2-2
+- Fix xfs_metadump disclosure flaw, CVE-2012-2150  (#1251118)
 
-* Mon Jul 25 2011 Lukas Czerner <lczerner@redhat.com> 3.1.1-6
-- Check if agno is inside the filesystem (#694706)
+* Mon Jun 15 2015 Eric Sandeen <sandeen@redhat.com> 3.2.2-1
+- Update to upstream v3.2.2, plus fixes from v3.2.3 (#1223991)
+- repair: fix unnecessary secondary scan if only last sb is corrupt (#1201238)
+- repair: check ino alignment value to avoid mod by zero (#1223444)
 
-* Fri Jun 03 2011 Eric Sandeen <sandeen@redhat.com> 3.1.1-5
-- Don't try to report quotas which aren't there (#679154)
- 
-* Mon May 10 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-4
-- Two important fixes from 3.1.2 release (#590773)
-- Fix up attribute handling in xfs_fsr
-- Make sure xfs_admin writes both sb fields when changing lazy_count
+* Fri Dec 19 2014 Eric Sandeen <sandeen@redhat.com> 3.2.1-6
+- xfs_repair: fix maximum block offset test (#1173146)
+- xfs_copy: fix assert failure on 4k sector devices (#1162414)
+- xfs_quota: man page updates (#175133, #1175627)
 
-* Mon Mar 15 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-3
-- Fix missing locking for btree manipulation in xfs_repair (#573831)
+* Fri Oct 24 2014 Eric Sandeen <sandeen@redhat.com> 3.2.1-5
+- xfs_repair: copy stripe geometry from backup supers if needed (#1150857)
+
+* Wed Sep 17 2014 Eric Sandeen <sandeen@redhat.com> 3.2.1-3
+- Add supported file attributes to xfs.5 manpage (#1142555)
+
+* Mon Sep 15 2014 Eric Sandeen <sandeen@redhat.com> 3.2.1-2
+- xfs_quota: fix segfault when reporting on nonexistant path (#1077826)
+- xfs_quota: fix reporting on symlinked paths (#1077841)
+
+* Tue Jul 15 2014 Eric Sandeen <sandeen@redhat.com> 3.2.1-1
+- New upstream release (#1119940)
+- xfs_copy: fix data corruption of target (#1105170)
+- mkfs.xfs: handle mkfs of file on 4k block device (#1101236)
+- xfs_copy: don't exit with error code on success (#1100376)
+
+* Tue Mar 11 2014 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.10.alpha2
+- Fix bug in xfs_repair's inode prefetch (#1083820)
+
+* Tue Mar 11 2014 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.9.alpha2
+- Sync up with upstream's latest CRC enhancements (#1074037)
+
+* Fri Feb 28 2014 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.8.alpha2
+- mkfs.xfs fix default log size for small filesystems (#1034003)
+- xfs_copy: partial fixups for CRC filesystems (#1043570)
+- xfs_logprint: Don't error out after split items lose context (#1043591)
+
+* Tue Feb 24 2014 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.7.alpha2
+- xfs_metadump: Really add xfs_metadump -F option (#1040921)
+- xfs_check: Remove xfs_check manpage, xfs_check is deprecated (#1029458)
+
+* Mon Feb 24 2014 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.6.alpha2
+- xfs_metadump: Require -F if proper SB magic is not found (#1040921)
+- xfs_repair: fix bad block pointer found in large directories (#1034157)
+- libxfs: Don't mark single-map blockmaps as discontiguous (#1033480)
+- libxfs: Clear stale buffer errors on write (1033480)
+
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 3.2.0-0.5.alpha2
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 3.2.0-0.4.alpha2
+- Mass rebuild 2013-12-27
+
+* Mon Nov 25 2013 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.3.alpha2
+- New upstream alpha release (#1034445)
+- Remove xfs_check reference from fsck.xfs output (#1029455)
+- Fix xfs_fsr on some files with selinux attributes (#1034013)
+
+* Fri Nov 15 2013 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.2.alpha1
+- Move xfs_types.h from xfsprogs-qa-devel to xfsprogs-devel (#1024048)
+- Remove deprecated xfs_check from package (#1029458)
+
+* Thu Sep 26 2013 Eric Sandeen <sandeen@redhat.com> 3.2.0-0.1.alpha1
+- New upstream alpha release with preliminary CRC support (#1015632)
+- Additional patches beyon 3.2.0-alpha1:
+- Fix big endian build
+- Handle symlinks in xfs_quota arguments (#1013668)
+- Don't report non-regular files as xfsctl-capable (#1012412)
+- Fix log recovery on 4k filesystems
+
+* Thu Aug 15 2013 Eric Sandeen <sandeen@redhat.com> 3.1.11-3
+- mkfs.xfs: fix protofile name create block reservation (#918473)
+
+* Mon Jul 22 2013 Eric Sandeen <sandeen@redhat.com> 3.1.11-2
+- Update xfs_metadump manpage re: frozen filesystems (#953442)
+
+* Wed May 08 2013 Eric Sandeen <sandeen@redhat.com> 3.1.11-1
+- New upstream release.
+
+* Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1.10-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
+* Thu Dec 13 2012 Eric Sandeen <sandeen@redhat.com> 3.1.10-1
+- New upstream release, with non-broken tarball.
+
+* Wed Dec 12 2012 Eric Sandeen <sandeen@redhat.com> 3.1.9-1
+- New upstream release.
+
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1.8-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Mar 30 2012 Eric Sandeen <sandeen@redhat.com> 3.1.8-4
+- Rebuild against new RPM (RHBZ#808250)
+
+* Wed Mar 28 2012 Eric Sandeen <sandeen@redhat.com> 3.1.8-3
+- Move files out of /lib64 to /usr/lib64
+
+* Wed Mar 28 2012 Eric Sandeen <sandeen@redhat.com> 3.1.8-2
+- Move files out of /sbin to /usr/sbin
+
+* Fri Mar 23 2012 Eric Sandeen <sandeen@redhat.com> 3.1.8-1
+- New upstream release.
+
+* Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Fri Nov 18 2011 Eric Sandeen <sandeen@redhat.com> 3.1.7-1
+- New upstream release.
+
+* Mon Oct 17 2011 Eric Sandeen <sandeen@redhat.com> 3.1.6-2
+- Remove mistaken "test" in release string
+
+* Fri Oct 14 2011 Eric Sandeen <sandeen@redhat.com> 3.1.6-1.test
+- New upstream release.  Drop -DNDEBUG build flag.
+
+* Thu Mar 31 2011 Eric Sandeen <sandeen@redhat.com> 3.1.5-1
+- New upstream release
+
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Thu Nov 18 2010 Eric Sandeen <sandeen@redhat.com> 3.1.4-1
+- New upstream release; disable DEBUG for now to build
+
+* Sat Aug 28 2010 Eric Sandeen <sandeen@redhat.com> 3.1.3-1
+- New upstream release
+
+* Fri May 07 2010 Eric Sandeen <sandeen@redhat.com> 3.1.2-1
+- New upstream release
+
+* Thu Apr 01 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-7
+- make devel pkg require libuuid-devel (#576296)
+
+* Mon Mar 15 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-6
+- Fix missing locking for btree manipulation in xfs_repair
+
+* Fri Feb 12 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-5
+- --enable-static=no doesn't work; just nuke static libs
+
+* Fri Feb 12 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-4
+- Fix up -devel package descriptions
+
+* Fri Feb 12 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-3
+- Drop static libs (#556102)
 
 * Mon Feb 01 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-2
 - Fix mkfs of target with nothing blkid can recognize (#561870)
  
 * Mon Feb 01 2010 Eric Sandeen <sandeen@redhat.com> 3.1.1-1
-- New upstream release (#555847)
+- New upstream release
 - Fix fd validity test for device-less mkfs invocation
  
 * Sun Jan 17 2010 Eric Sandeen <sandeen@redhat.com> 3.1.0-2
 - Post-release mkfs fixes (#555847)
-- Minor fixups for new glibc headers
 
 * Wed Jan 13 2010 Eric Sandeen <sandeen@redhat.com> 3.1.0-1
 - New upstream release
+- Minor fixups for new glibc headers
 - Fixes default mkfs.xfs on 4k sector device (#539553)
 
 * Tue Dec 08 2009 Eric Sandeen <sandeen@redhat.com> 3.0.3-5
