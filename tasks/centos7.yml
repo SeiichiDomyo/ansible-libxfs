@@ -13,6 +13,7 @@
 
   roles:
     - common
+    - xfsprogs-4.5.0 
 
   tasks:
     - stat: path=/usr/lib64/libxfs.so

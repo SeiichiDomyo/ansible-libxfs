@@ -4,22 +4,7 @@
 - name: install the Development tools packages
   yum: name="@development" state=present
 
-- name: install some packages for rebuild
+- name: install rpmbuild
   yum: name="{{ item }}" state=present
   with_items:
     - rpmdevtools
-    - readline-devel
-    - libblkid-devel
-    - libuuid-devel
-  when: ansible_distribution == 'CentOS' and ansible_distribution_version >= '6'
-
-- name: install some packages for rebuild
-  yum: name="{{ item }}" state=present
-  with_items:
-    - libtool
-    - autoconf
-    - gettext
-    - rpmdevtools
-    - readline-devel
-    - e2fsprogs-devel
-  when: ansible_distribution == 'CentOS' and ansible_distribution_version == '5.11'

@@ -1,0 +1,8 @@
+- name: install some packages for build
+  yum: name="{{ item }}" state=present
+  with_items:
+    - libtool
+    - gettext
+    - libuuid-devel
+    - readline-devel
+    - libblkid-devel
