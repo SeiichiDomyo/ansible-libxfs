@@ -5,7 +5,8 @@
   become: yes
 
   vars:
-    xfsprogs_rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
+    rpmbuild_dir: /home/vagrant/rpmbuild/
+    rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
     xfsprogs_srpm: xfsprogs-4.5.0-9.el7_3.src.rpm
     xfsprogs_rpms:
        - filename: xfsprogs-4.5.0-9.1.el7.centos.x86_64.rpm
@@ -30,14 +31,14 @@
       shell: rpmbuild -bp SPECS/xfsprogs.spec &&
              cp /vagrant/files/centos7/xfsprogs-4.5.0-9.1.el7_3-xfsprogs.spec SPECS/xfsprogs.spec
       args:
-        chdir: ~/rpmbuild/
+        chdir: "{{ rpmbuild_dir }}"
       when: _libxfs.stat.exists == false
 
     - name: build xfsprogs and xfsprogs-devel with libxfs
       become: no 
       shell: rpmbuild -ba SPECS/xfsprogs.spec
       args:
-        chdir: ~/rpmbuild/
+        chdir: "{{ rpmbuild_dir }}" 
       when: _libxfs.stat.exists == false
 
     - name: remove/clenup xfsprogs packages
@@ -48,6 +49,6 @@
       when: _libxfs.stat.exists == false
 
     - name: install xfsprogs and xfsprogs-devel with libxfs
-      yum: name="{{ xfsprogs_rpms_dir }}/{{ item.filename }}" state=present
+      yum: name="{{ rpms_dir }}/{{ item.filename }}" state=present
       with_items: "{{ xfsprogs_rpms }}"
       when: _libxfs.stat.exists == false
