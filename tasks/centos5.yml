@@ -37,13 +37,6 @@
         chdir: /usr/src/redhat/ 
       when: _libxfs.stat.exists == false
 
-    - name: remove/clenup xfsprogs packages
-      yum: name="{{ item }}" state=absent
-      with_items:
-        - xfsprogs
-        - xfsporgs-devel
-      when: _libxfs.stat.exists == false
-
     - name: install xfsprogs and xfsprogs-devel with libxfs
       shell: rpm -ivh xfsprogs-2.9.4-1.1.el5.x86_64.rpm xfsprogs-devel-2.9.4-1.1.el5.x86_64.rpm
       args:

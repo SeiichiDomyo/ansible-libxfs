@@ -41,13 +41,6 @@
         chdir: "{{ rpmbuild_dir }}" 
       when: _libxfs.stat.exists == false
 
-    - name: remove/clenup xfsprogs packages
-      yum: name="{{ item }}" state=absent
-      with_items:
-        - xfsprogs
-        - xfsporgs-devel
-      when: _libxfs.stat.exists == false
-
     - name: install xfsprogs and xfsprogs-devel with libxfs
       yum: name="{{ rpms_dir }}/{{ item.filename }}" state=present
       with_items: "{{ xfsprogs_rpms }}"
