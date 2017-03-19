@@ -1,5 +1,7 @@
 - name: install some packages for build
-  yum: name="{{ item }}" state=present
+  yum:
+    name: "{{ item }}"
+    state: present
   with_items:
     - libtool
     - gettext
@@ -7,39 +9,46 @@
     - libuuid-devel
     - readline-devel
     - libblkid-devel
-  when: installation_xfsprogs
+  when:
+    - installation_xfsprogs
 
 - name: download xfsprogs source
   become: no
   get_url:
     url: "{{ xfsprogs_srpm_url }}"
-    dest: "{{ download_dir }}"
+    dest: "{{ rpmbuild_user_home }}"
   when:
     - installation_xfsprogs
 
-- name: exapnd xfsprogs source
+- name: expand xfsprogs source
   become: no 
-  shell: rpm -ivh "{{ xfsprogs_srpm_filename }}"
+  command: rpm -ivh "{{ xfsprogs_srpm_filename }}"
   args:
-    chdir: "{{ download_dir }}"
-  when: installation_xfsprogs
+    chdir: "{{ rpmbuild_user_home }}"
+  when:
+    - installation_xfsprogs
 
 - name: patching xfsprogs source
   become: no 
   shell: rpmbuild -bp SPECS/xfsprogs.spec &&
          cp /vagrant/files/centos7/xfsprogs-4.5.0-9.1.el7_3-xfsprogs.spec SPECS/xfsprogs.spec
   args:
-    chdir: "{{ rpmbuild_dir }}"
-  when: installation_xfsprogs
+    chdir: "{{rpmbuild_build_dir }}"
+  when:
+   - installation_xfsprogs
 
 - name: build xfsprogs and xfsprogs-devel with libxfs
   become: no 
   shell: rpmbuild -ba SPECS/xfsprogs.spec
   args:
-    chdir: "{{ rpmbuild_dir }}" 
-  when: installation_xfsprogs
+    chdir: "{{rpmbuild_build_dir }}" 
+  when:
+    - installation_xfsprogs
 
 - name: install xfsprogs and xfsprogs-devel with libxfs
-  yum: name="{{ rpms_dir }}/{{ item.filename }}" state=present
+  yum:
+    name: "{{ rpmbuild_rpms_dir }}/{{ item.filename }}"
+    state: present
   with_items: "{{ xfsprogs_rpms }}"
-  when: installation_xfsprogs
+  when:
+    - installation_xfsprogs

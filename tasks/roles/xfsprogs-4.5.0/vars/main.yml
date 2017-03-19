@@ -1,13 +1,16 @@
 installation_xfsprogs: true 
 
 # rpmbuild enviroment
-download_dir: /home/vagrant/
-rpmbuild_dir: /home/vagrant/rpmbuild/
-rpms_dir:     /home/vagrant/rpmbuild/RPMS/x86_64
+rpmbuild_user_name: vagrant
+rpmbuild_user_home: /home/vagrant/
+rpmbuild_build_dir: "{{ rpmbuild_user_home }}/rpmbuild/"
+rpmbuild_rpms_dir:  "{{ rpmbuild_build_dir }}/RPMS/{{ ansible_userspace_architecture }}"
+rpmbuild_srpm_dir:  "{{ rpmbuild_build_dir }}/SPMS"
 
 # Input Packages
 xfsprogs_srpm_filename: xfsprogs-4.5.0-9.el7_3.src.rpm
-xfsprogs_srpm_url: http://vault.centos.org/centos/7/updates/Source/SPackages/xfsprogs-4.5.0-9.el7_3.src.rpm
+xfsprogs_srpm_url_base: http://vault.centos.org/centos/7/updates/Source/SPackages/
+xfsprogs_srpm_url: "{{ xfsprogs_srpm_url_base }}/{{ xfsprogs_srpm_filename }}"
 
 # Output Pakages 
 xfsprogs_rpms:
