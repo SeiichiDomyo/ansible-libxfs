@@ -10,9 +10,18 @@
   when: installation_xfsprogs
 
 - name: download xfsprogs source
+  become: no
+  get_url:
+    url: "{{ xfsprogs_srpm_url }}"
+    dest: "{{ download_dir }}"
+  when:
+    - installation_xfsprogs
+
+- name: exapnd xfsprogs source
   become: no 
-  shell: yumdownloader --source xfsprogs &&
-         rpm -ivh "{{ xfsprogs_srpm }}"
+  shell: rpm -ivh "{{ xfsprogs_srpm_filename }}"
+  args:
+    chdir: "{{ download_dir }}"
   when: installation_xfsprogs
 
 - name: patching xfsprogs source

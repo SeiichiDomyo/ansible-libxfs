@@ -1,8 +1,15 @@
 installation_xfsprogs: true 
 
+# rpmbuild enviroment
+download_dir: /home/vagrant/
 rpmbuild_dir: /home/vagrant/rpmbuild/
-rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
-xfsprogs_srpm: xfsprogs-4.5.0-9.el7_3.src.rpm
+rpms_dir:     /home/vagrant/rpmbuild/RPMS/x86_64
+
+# Input Packages
+xfsprogs_srpm_filename: xfsprogs-4.5.0-9.el7_3.src.rpm
+xfsprogs_srpm_url: http://vault.centos.org/centos/7/updates/Source/SPackages/xfsprogs-4.5.0-9.el7_3.src.rpm
+
+# Output Pakages 
 xfsprogs_rpms:
    - filename: xfsprogs-4.5.0-9.1.el7.centos.x86_64.rpm
    - filename: xfsprogs-devel-4.5.0-9.1.el7.centos.x86_64.rpm
