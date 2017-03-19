@@ -7,3 +7,30 @@
     - libuuid-devel
     - readline-devel
     - libblkid-devel
+  when: installation_xfsprogs
+
+- name: download xfsprogs source
+  become: no 
+  shell: yumdownloader --source xfsprogs &&
+         rpm -ivh "{{ xfsprogs_srpm }}"
+  when: installation_xfsprogs
+
+- name: patching xfsprogs source
+  become: no 
+  shell: rpmbuild -bp SPECS/xfsprogs.spec &&
+         cp /vagrant/files/centos7/xfsprogs-4.5.0-9.1.el7_3-xfsprogs.spec SPECS/xfsprogs.spec
+  args:
+    chdir: "{{ rpmbuild_dir }}"
+  when: installation_xfsprogs
+
+- name: build xfsprogs and xfsprogs-devel with libxfs
+  become: no 
+  shell: rpmbuild -ba SPECS/xfsprogs.spec
+  args:
+    chdir: "{{ rpmbuild_dir }}" 
+  when: installation_xfsprogs
+
+- name: install xfsprogs and xfsprogs-devel with libxfs
+  yum: name="{{ rpms_dir }}/{{ item.filename }}" state=present
+  with_items: "{{ xfsprogs_rpms }}"
+  when: installation_xfsprogs
