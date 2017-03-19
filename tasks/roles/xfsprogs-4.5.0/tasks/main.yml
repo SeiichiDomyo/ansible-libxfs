@@ -1,3 +1,13 @@
+- name: install xfsprogs and xfsprogs-devel if exsits 
+  yum:
+    name: "{{ rpmbuild_rpms_dir }}/{{ item.filename }}"
+    state: present
+  with_items: "{{ xfsprogs_rpms }}"
+  register: installed_xfsprogs
+  when:
+    - installation_xfsprogs
+  ignore_errors: true
+
 - name: install some packages for build
   yum:
     name: "{{ item }}"
@@ -27,6 +37,7 @@
     chdir: "{{ rpmbuild_user_home }}"
   when:
     - installation_xfsprogs
+    - installed_xfsprogs | failed
 
 - name: patching xfsprogs source
   become: no 
@@ -36,6 +47,7 @@
     chdir: "{{rpmbuild_build_dir }}"
   when:
    - installation_xfsprogs
+   - installed_xfsprogs | failed
 
 - name: build xfsprogs and xfsprogs-devel with libxfs
   become: no 
@@ -44,7 +56,8 @@
     chdir: "{{rpmbuild_build_dir }}" 
   when:
     - installation_xfsprogs
-
+    - installed_xfsprogs | failed
+ 
 - name: install xfsprogs and xfsprogs-devel with libxfs
   yum:
     name: "{{ rpmbuild_rpms_dir }}/{{ item.filename }}"
