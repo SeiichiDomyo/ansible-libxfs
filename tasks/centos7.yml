@@ -2,51 +2,8 @@
 # tasks file for SeiichiDomyo.libxfs
 
 - hosts: centos7
-  sudo: yes
-
-  vars:
-    xfsprogs_rpms_dir: /home/vagrant/rpmbuild/RPMS/x86_64
-    xfsprogs_srpm: xfsprogs-4.5.0-9.el7_3.src.rpm
-    xfsprogs_rpms:
-       - filename: xfsprogs-4.5.0-9.1.el7.centos.x86_64.rpm
-       - filename: xfsprogs-devel-4.5.0-9.1.el7.centos.x86_64.rpm
+  become: yes
 
   roles:
     - common
-
-  tasks:
-    - stat: path=/usr/lib64/libxfs.so
-      register: _libxfs
-
-    - name: download xfsprogs source
-      sudo: no
-      shell: yumdownloader --source xfsprogs &&
-             rpm -ivh "{{ xfsprogs_srpm }}"
-      when: _libxfs.stat.exists == false
-
-    - name: patching xfsprogs source
-      sudo: no
-      shell: rpmbuild -bp SPECS/xfsprogs.spec &&
-             cp /vagrant/files/centos7/xfsprogs-4.5.0-9.1.el7_3-xfsprogs.spec SPECS/xfsprogs.spec
-      args:
-        chdir: ~/rpmbuild/
-      when: _libxfs.stat.exists == false
-
-    - name: build xfsprogs and xfsprogs-devel with libxfs
-      sudo: no
-      shell: rpmbuild -ba SPECS/xfsprogs.spec
-      args:
-        chdir: ~/rpmbuild/
-      when: _libxfs.stat.exists == false
-
-    - name: remove/clenup xfsprogs packages
-      yum: name="{{ item }}" state=absent
-      with_items:
-        - xfsprogs
-        - xfsporgs-devel
-      when: _libxfs.stat.exists == false
-
-    - name: install xfsprogs and xfsprogs-devel with libxfs
-      yum: name="{{ xfsprogs_rpms_dir }}/{{ item.filename }}" state=present
-      with_items: "{{ xfsprogs_rpms }}"
-      when: _libxfs.stat.exists == false
+    - xfsprogs-4.5.0 

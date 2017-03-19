@@ -2,7 +2,7 @@
 # tasks file for SeiichiDomyo.libxfs
 
 - hosts: centos5
-  sudo: yes
+  become: yes
 
   vars:
     xfsprogs_rpms_dir: /usr/src/redhat/RPMS/x86_64
@@ -13,6 +13,7 @@
 
   roles:
     - common
+    - xfsprogs-2.9.4 
   
   tasks:
     - stat: path=/usr/lib64/libxfs.a
@@ -34,13 +35,6 @@
       shell: rpmbuild -ba --define="dist .el5" SPECS/xfsprogs.spec
       args:
         chdir: /usr/src/redhat/ 
-      when: _libxfs.stat.exists == false
-
-    - name: remove/clenup xfsprogs packages
-      yum: name="{{ item }}" state=absent
-      with_items:
-        - xfsprogs
-        - xfsporgs-devel
       when: _libxfs.stat.exists == false
 
     - name: install xfsprogs and xfsprogs-devel with libxfs
