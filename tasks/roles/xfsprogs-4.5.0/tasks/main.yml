@@ -1,6 +1,7 @@
 - name: check xfsprogs and xfsprogs-devel rpms 
   yum:
     name: "{{ rpmbuild_rpms_dir }}/{{ item.filename }}"
+    disable_gpg_check: yes
     state: present
   with_items: "{{ xfsprogs_rpms }}"
   register: installed_xfsprogs
@@ -60,6 +61,7 @@
 - name: install xfsprogs and xfsprogs-devel with libxfs
   yum:
     name: "{{ rpmbuild_rpms_dir }}/{{ item.filename }}"
+    disable_gpg_check: yes
     state: present
   with_items: "{{ xfsprogs_rpms }}"
   when:
